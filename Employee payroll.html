@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Payroll Management System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: white;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #00ffcc;
+    }
+    .container {
+      width: 800px;
+      margin: auto;
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    input {
+      margin: 5px;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      margin: 5px;
+      padding: 8px;
+      border-radius: 5px;
+      background-color: #00ffcc;
+      color: black;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      margin-top: 15px;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Employee Payroll Management System</h1>
+  <div class="container">
+    <input type="text" id="empName" placeholder="Employee Name">
+    <input type="number" id="empSalary" placeholder="Basic Salary">
+    <button onclick="addEmployee()">Add</button>
+    <button onclick="updateEmployee()">Update</button>
+    <button onclick="deleteEmployee()">Delete</button>
+    <button onclick="generatePayslip()">Generate Payslip</button>
+
+    <table id="empTable">
+      <tr>
+        <th>Name</th>
+        <th>Salary</th>
+        <th>Bonus</th>
+        <th>Deductions</th>
+        <th>Net Pay</th>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    let employees = JSON.parse(localStorage.getItem("employees")) || [];
+
+    function saveData() {
+      localStorage.setItem("employees", JSON.stringify(employees));
+    }
+
+    function addEmployee() {
+      const name = document.getElementById('empName').value;
+      const salary = parseFloat(document.getElementById('empSalary').value);
+      if (!name || isNaN(salary)) {
+        alert("Enter valid details!");
+        return;
+      }
+      employees.push({ name, salary, bonus: 0, deductions: 0, net: salary });
+      saveData();
+      displayEmployees();
+    }
+
+    function updateEmployee() {
+      const name = document.getElementById('empName').value;
+      const salary = parseFloat(document.getElementById('empSalary').value);
+      const emp = employees.find(e => e.name === name);
+      if (emp) {
+        emp.salary = salary;
+        emp.net = salary;
+        saveData();
+        displayEmployees();
+      } else {
+        alert("Employee not found!");
+      }
+    }
+
+    function deleteEmployee() {
+      const name = document.getElementById('empName').value;
+      employees = employees.filter(e => e.name !== name);
+      saveData();
+      displayEmployees();
+    }
+
+    function generatePayslip() {
+      employees.forEach(e => {
+        e.bonus = e.salary * 0.1;       // 10% bonus
+        e.deductions = e.salary * 0.05; // 5% deductions
+        e.net = e.salary + e.bonus - e.deductions;
+      });
+      saveData();
+      displayEmployees();
+      alert("Payslip generated successfully!");
+    }
+
+    function displayEmployees() {
+      const table = document.getElementById('empTable');
+      table.innerHTML = `<tr>
+        <th>Name</th><th>Salary</th><th>Bonus</th><th>Deductions</th><th>Net Pay</th>
+      </tr>`;
+      employees.forEach(e => {
+        table.innerHTML += `<tr>
+          <td>${e.name}</td>
+          <td>${e.salary}</td>
+          <td>${e.bonus}</td>
+          <td>${e.deductions}</td>
+          <td>${e.net}</td>
+        </tr>`;
+      });
+    }
+
+    // Load data on page start
+    displayEmployees();
+  </script>
+</body>
+</html>
